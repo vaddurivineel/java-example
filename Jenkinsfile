@@ -1,23 +1,25 @@
 pipeline{
-agent any
-	stages{
-        stage('Build stage') {
+    agent none
+    
+    stages{
+        
+        stage('Git Checkout') {
+            agent {
+                label 'dockerNode'
+            }
             steps {
-                echo 'This is a build stage'
-				sh 'sleep 5'
-			}
-		}
-        stage('Push stage') {
+                git "https://github.com/vaddurivineel/java-example.git"
+            }
+        }
+        
+        stage ('Deploy to Docker') {
+            agent {
+                label 'dockerNode'
+            }
             steps {
-                echo 'This is push stage'
-                sh 'sleep 5'
-			}
-		}
-        stage('Deploy stage') {
-            steps {
-                echo 'This is deploy stage'
-                sh 'sleep 5'
-			}
-		}
-	}
-}	
+                sh 'docker build -t app .'
+                sh 'docker run -d -p 9090:8080 app'
+            }
+        }
+    }
+}
